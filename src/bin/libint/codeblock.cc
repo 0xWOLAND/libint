@@ -82,8 +82,18 @@ std::string ForLoop::open() {
     oss << "{" << endl
         << ctext->decldef(ctext->type_name<const int>(), varname_, sa_expr_);
   } else {
-    oss << "#ifdef __INTEL_COMPILER\n#pragma ivdep\n#endif\n"
-        << "for(" << ctext->type_name<int>() << " " << varname_ << " = "
+    if (varname_ == "vi") {
+      const bool ctime_width =
+          lt_expr_.find_first_not_of("0123456789") == std::string::npos;
+      oss << "#if defined(__INTEL_COMPILER)\n#pragma ivdep\n"
+          << "#elif defined(__clang__)\n"
+          << "_Pragma(\"clang loop vectorize(assume_safety)";
+      if (ctime_width) oss << " vectorize_width(" << lt_expr_ << ")";
+      oss << "\")\n"
+          << "#elif defined(__GNUC__)\n#pragma GCC ivdep\n#endif\n";
+    } else
+      oss << "#ifdef __INTEL_COMPILER\n#pragma ivdep\n#endif\n";
+    oss << "for(" << ctext->type_name<int>() << " " << varname_ << " = "
         << sa_expr_ << ctext->end_of_stat() << " " << varname_ << "<"
         << lt_expr_ << ctext->end_of_stat() << " " << varname_ << "++) {"
         << endl;

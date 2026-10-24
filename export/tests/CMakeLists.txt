@@ -89,6 +89,7 @@ if (LIBINT2_REQUIRE_CXX_API)
             unit/test-precision.cc
             unit/test-shell-order.cc
             unit/test-util.cc
+            unit/test-zdiag.cc
             )
     # if have C, also test C bindings
     include(CheckLanguage)
